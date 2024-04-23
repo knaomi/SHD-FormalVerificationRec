@@ -1,0 +1,5 @@
+
+read_verilog -sv -defer tiny_cpu/tiny_cpu.v
+prep -flatten -top tiny_cpu -nordff
+write_smt2 -stdt generated_src/tiny_cpu.smt2
+

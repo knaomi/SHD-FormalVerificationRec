@@ -63,21 +63,47 @@ RUN git clone -n https://github.com/YosysHQ/nextpnr.git \
     && make -j$(nproc) \
     && make install
 
-FROM base
+FROM build-deps AS build-racket
 
-RUN wget https://download.racket-lang.org/installers/8.5/racket-8.5-x86_64-linux-cs.sh \
-    && sh racket-8.5-x86_64-linux-cs.sh --create-dir --unix-style --dest /usr/ \
-    && rm racket-8.5-x86_64-linux-cs.sh
+RUN wget https://download.racket-lang.org/releases/8.5/installers/racket-8.5-src-builtpkgs.tgz && \
+    tar -zxvf racket-8.5-src-builtpkgs.tgz && \
+    cd racket-8.5/src && \
+    ./configure --prefix=/usr/racket && \
+    make -j$(nproc) && \
+    make install
 
-RUN pip3 install bin2coe
-
-RUN pip3 install pyserial
-
-RUN raco pkg install --no-docs --batch --auto --checksum v1.0.6 https://github.com/anishathalye/knox.git
+FROM build-deps
 
 COPY --from=build-yosys /usr/local/bin/* /usr/local/bin/
 COPY --from=build-yosys /usr/local/share/yosys/ /usr/local/share/yosys/
 COPY --from=build-icestorm-nextpnr /usr/local/bin/* /usr/local/bin/
 COPY --from=build-icestorm-nextpnr /usr/local/share/icebox/ /usr/local/share/icebox/
+COPY --from=build-racket /usr/racket/ /usr/racket/
+RUN echo "export PATH=/usr/racket/bin:\$PATH" >> /root/.bashrc
 
-WORKDIR /
+RUN pip3 install bin2coe
+
+RUN pip3 install pyserial
+
+RUN /usr/racket/bin/raco pkg install --no-docs --batch --auto --checksum v1.0.6 https://github.com/anishathalye/knox.git
+
+
+#boolector 3.2.2
+RUN apt-get update && apt-get install -y \
+    curl
+RUN wget https://github.com/Boolector/boolector/archive/refs/tags/3.2.2.tar.gz && \
+    tar -zxvf 3.2.2.tar.gz && \
+    cd boolector-3.2.2 && \
+    ./contrib/setup-lingeling.sh && \
+    ./contrib/setup-btor2tools.sh && \
+    ./configure.sh --prefix /usr/boolector && cd build && make -j$(nproc) && make install && \
+    cd ../.. && rm -rf 3.2.2.tar.gz  boolector-3.2.2 && \
+    echo "export PATH=/usr/boolector/bin:\$PATH" >> /root/.bashrc
+
+# z3
+RUN git clone -b z3-4.12.4 https://github.com/Z3Prover/z3.git && \
+    cd z3 && \
+    python3 scripts/mk_make.py --prefix=/usr/local && \
+    cd build && make -j$(nproc) && make install && \
+    cd ../.. && rm -rf z3
+

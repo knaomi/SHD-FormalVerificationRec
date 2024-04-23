@@ -15,7 +15,7 @@ module tiny_cpu (
   input clk,
   input rst,
 
-  output commit,
+  output justCommit,
 
   // These outputs just avoid yosys optimize away registers
   output [`WIDTH-1:0] pc,
@@ -79,8 +79,11 @@ module tiny_cpu (
     end
 
 
-  // STEP: generate commit output
-  assign commit = stage==`STAGE_COMMIT;
+  // STEP: generate justCommit output
+  reg justCommit;
+  always @(posedge clk)
+    if (rst) justCommit <= 0;
+    else     justCommit <= stage==`STAGE_COMMIT;
 
 endmodule
 
