@@ -74,8 +74,12 @@
 (define (impl-archState impl)
   ; *******************
   ; **TODO exercise 3**
+   (define tiny_cpu (impl-tiny_cpu impl))
+   ;(vector impl-tiny_cpu-pc impl-tiny_cpu-R1 impl-tiny_cpu-R2)
+    
   ; *******************
   (bv 0 1)
+  (concat (tiny_cpu_s-pc tiny_cpu) (tiny_cpu_s-R1 tiny_cpu) (tiny_cpu_s-R2 tiny_cpu))
 )
 
 

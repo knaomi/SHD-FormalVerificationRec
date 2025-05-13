@@ -41,7 +41,7 @@ module tiny_cpu (
       for (i=0; i<`IMEM_SIZE; i=i+1) imem[i] <= 0;
     end
   wire inst = imem[pc];
-
+  (printf (~a "instrction in tiny cpu: " inst "\n"))
 
   // STEP: execute the instruction
   reg [`WIDTH-1:0] R1, R2;
