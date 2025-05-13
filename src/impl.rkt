@@ -94,6 +94,11 @@
   ; *******************
   ; **TODO exercise 1**
   ; *******************
+  (printf( ~a "pc value : " (tiny_cpu_s-pc tiny_cpu) "\n"))
+  (printf( ~a "R1 value : " (tiny_cpu_s-R1 tiny_cpu) "\n"))
+  (printf( ~a  "R2 value : " (tiny_cpu_s-R2 tiny_cpu) "\n"))
+
+
 )
 
 
